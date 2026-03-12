@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>조병근 · Cho ByungKuen</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Georgia,serif}
+    .cc:hover{transform:translateX(4px);box-shadow:0 6px 20px rgba(0,0,0,.12)!important}
+    .sc:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.1)!important}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+    input:focus{border-color:#8b7355!important;outline:none}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const EMAILJS_SERVICE_ID = “service_ojhx83d”;
+const EMAILJS_TEMPLATE_ID = “template_3u267tt”;
+const EMAILJS_PUBLIC_KEY = “Prrf0TlrAcHYzZwDOcN48”;
+
+const careers = {
+ko: [
+{ period:“2023.09 ~ 현재”, company:“에스코어(삼성전자)”, role:“마케팅전략1팀 부장 / 컨설턴트”, color:”#1428A0”, summary:“삼성 인하우스 IT 컨설팅 | 매출 약 995억 | 415명”, details:[{title:“삼성전자 전사 통합 표준화 시스템 구축”,points:[“신규 론칭 시스템 데이터 표준화 및 프로세스 개선 (AI 도입)”,“기존 시스템 데이터 표준화 고도화”]},{title:“갤럭시 시리즈 글로벌 마케팅 성과 측정”,points:[“Galaxy S24/폴드5/플립5 언팩 전후 글로벌 지부별 성과 측정”,“Best Practice 사례집 발간 및 SNS 반응 분석”]},{title:“삼성닷컴 전환율 개선”,points:[“유럽 지부 결제 프로세스 개선 → 전환율 약 0.2%↑”,“유입경로별 구매 전환율 상관관계 분석”]},{title:“디지털 마케팅 채널 최적화”,points:[“2024년 D2C 강화 전략 수립”,“AI 활용 SNS 데이터 분석으로 공수 약 95%↓ 절감”]}]},
+{ period:“2021.09 ~ 2023.08”, company:“PwC 금융서비스본부”, role:“매니저 / 컨설턴트”, color:”#D04A02”, summary:“글로벌 빅4 회계법인 | 매출 약 3,899억 | 1,155명”, details:[{title:“농협 차세대 경제/유통 시스템 구축”,points:[“전국 5만명 농협 직원 대상 시스템 표준화 및 교육 기획”,“WMS 기반 단계별 교육 계획 수립 및 전국 순회교육 설계”]},{title:“현대카드 마케팅 CMS 개선”,points:[“마케팅 전 프로세스 분석 및 개선안 도출”,“기획~결과분석 전체 Value Chain 13개 영역별 개선과제 제안”]},{title:“삼성카드 통합 쇼핑몰 구축 PM”,points:[“고객사·개발사 간 의사결정 조율 및 진행상황 관리”,“쇼핑몰 운영정책서 작성 및 화면설계 품질관리”]},{title:“KB국민은행 데이터 마케팅 자동화”,points:[“타겟팅·데이터관리·모니터링 솔루션 벤치마킹”,“ROI 기반 캠페인 최적화 및 준법심의 자동화 구축”]},{title:“NH농협은행 디지털금융 프로세스 혁신”,points:[“스마트뱅크·올원뱅크·콕뱅크 공통 프로세스 표준화”,“경쟁사 분석 기반 고객 접점 서비스 개선”]},{title:“하나은행 톡브랜치 구축”,points:[“카카오톡 연계 차별화 서비스 설계”,“전 과정 일정관리 및 실행방안 제시”]}]},
+{ period:“2021.04 ~ 2021.08”, company:“아로마티카”, role:“영업전략팀 부장 / 팀장”, color:”#5c9e60”, summary:“친환경 유기농 K-뷰티 | 매출 526억 | 140명”, details:[{title:“채널별 온라인 운영 전략 수립”,points:[“채널별/상품군별 차별화 할인 정책 수립”,“자사몰 월 1회 빅세일 정례화 → 평균 대비 매출 3배 달성”]},{title:“환경 경영 전략 수립”,points:[“제로웨이스트샵 활성화 정책 수립”,“제로스테이션(오프라인 카페) 운영가이드 제작”]}]},
+{ period:“2019.11 ~ 2021.04”, company:“이마트 몰리스펫샵”, role:“과장 / 온라인 바이어”, color:”#00A651”, summary:“국내 최대 유통기업 이마트 계열”, details:[{title:“몰리스펫샵 온라인 바이어”,points:[“네이버 스마트스토어 오픈 → 첫 해 매출 목표 600% 이상 달성”,“SSG.COM 몰리스 전문관 오픈 → 전년비 130% 성장”]},{title:“데이즈 온라인 남성/스포츠/슈즈 바이어”,points:[“데이즈 자사몰 오픈 준비”,“SSG.COM 내 매출 전년비 140% 신장”,“온라인 전용 상품 기획 및 외부채널링 전략”]}]},
+{ period:“2012.12 ~ 2019.11”, company:“CJENM e패션사업팀”, role:“대리 / 온라인 MD (7년)”, color:”#C8102E”, summary:“CJ그룹 엔터테인먼트&커머스 계열”, details:[{title:“CJ몰 패션 총괄 MD”,points:[“일별 성과 관리 및 행사 모니터링 체계 구축”,“직매입 상품 재고평가 및 카테고리별 매출이익률 관리”]},{title:“CJ몰 캐주얼/언더웨어/남성의류 MD”,points:[“신규 브랜드 발굴 및 입점 확대 (비욘드클로젯, 87MM 등)”,“T커머스, 비디오커머스 신규채널 확장”,“B2B 영업 및 대형 제휴 프로세스 정립”]}]},
+],
+en: [
+{ period:“2023.09 ~ Present”, company:“S.Core (Samsung Electronics)”, role:“Director / Marketing Strategy Consultant”, color:”#1428A0”, summary:“Samsung In-house IT Consulting | Revenue ~99.5B KRW | 415 staff”, details:[{title:“Samsung Enterprise Data Standardization”,points:[“Data standardization for newly launched systems (+ AI integration)”,“Advanced standardization of existing systems”]},{title:“Galaxy Global Marketing Performance”,points:[“Galaxy S24/Fold5/Flip5 Unpacked global performance measurement”,“Best Practice case study publication & SNS analysis”]},{title:“Samsung.com Conversion Rate Improvement”,points:[“Europe payment process improvement → ~0.2%↑ conversion”,“Correlation analysis: traffic source vs. purchase rate”]},{title:“Digital Marketing Channel Optimization”,points:[“2024 D2C strategy & customer data insights”,“AI-powered SNS analysis → 95%↓ manpower reduction”]}]},
+{ period:“2021.09 ~ 2023.08”, company:“PwC Financial Services”, role:“Manager / Consultant”, color:”#D04A02”, summary:“Global Big4 | Revenue ~389.9B KRW | 1,155 staff”, details:[{title:“NongHyup Next-gen Distribution System”,points:[“System standardization & training for 50,000 employees nationwide”,“WMS-based phased training program design”]},{title:“Hyundai Card Marketing CMS”,points:[“Full marketing process analysis & improvement”,“13-area Value Chain improvement proposals”]},{title:“Samsung Card Integrated Shopping Mall PM”,points:[“Coordinating decisions between client and developer”,“Operations policy documentation & quality control”]},{title:“KB Kookmin Bank Marketing Automation”,points:[“Benchmarking targeting/data/monitoring solutions”,“ROI-based campaign optimization & compliance automation”]}]},
+{ period:“2021.04 ~ 2021.08”, company:“Aromatica”, role:“Sales Strategy Director / Team Lead”, color:”#5c9e60”, summary:“Eco-organic K-Beauty | Revenue 52.6B KRW | 140 staff”, details:[{title:“Online Channel Strategy”,points:[“Differentiated discount policies by channel/category”,“Monthly big sale → 3x average revenue”]},{title:“Environmental Management”,points:[“Zero-waste shop activation policy”,“Zero Station (offline café) operation guide”]}]},
+{ period:“2019.11 ~ 2021.04”, company:“Emart Mollys Pet Shop”, role:“Manager / Online Buyer”, color:”#00A651”, summary:“Korea’s largest retailer Emart subsidiary”, details:[{title:“Mollys Online Buyer”,points:[“Naver Smart Store launch → 600%+ of first-year target”,“SSG.COM Mollys store → 130% YoY growth”]},{title:“Daiz Online Buyer (Men/Sports/Shoes)”,points:[“Daiz own-mall launch preparation”,“SSG.COM 140% YoY growth”,“Online-exclusive product planning”]}]},
+{ period:“2012.12 ~ 2019.11”, company:“CJENM e-Fashion”, role:“Asst. Manager / Online MD (7 years)”, color:”#C8102E”, summary:“CJ Group Entertainment & Commerce”, details:[{title:“CJ Mall Fashion Overall MD”,points:[“Daily performance & event monitoring system”,“Inventory evaluation & category margin management”]},{title:“CJ Mall Casual/Underwear/Menswear MD”,points:[“New brand discovery (Beyond Closet, 87MM, etc.)”,“T-commerce & video commerce expansion”,“B2B partnership process establishment”]}]},
+],
+};
+
+function App() {
+const [lang, setLang] = useState(“ko”);
+const [phase, setPhase] = useState(“landing”);
+const [form, setForm] = useState({name:””,email:””});
+const [sending, setSending] = useState(false);
+const [sent, setSent] = useState(false);
+const [openCareer, setOpenCareer] = useState(null);
+const [openDetail, setOpenDetail] = useState(null);
+const [visible, setVisible] = useState(false);
+
+useEffect(() => { setTimeout(() => setVisible(true), 80); }, []);
+const ko = lang === “ko”;
+const list = careers[lang];
+
+const S = {
+wrap: {fontFamily:“Georgia,serif”,background:“linear-gradient(135deg,#faf8f5,#f0ebe3,#faf8f5)”,minHeight:“100vh”,color:”#2c2416”,overflowX:“hidden”},
+nav: {position:“sticky”,top:0,zIndex:100,padding:“13px 20px”,display:“flex”,justifyContent:“space-between”,alignItems:“center”,background:“rgba(250,248,245,.9)”,backdropFilter:“blur(12px)”,borderBottom:“1px solid rgba(212,201,184,.3)”},
+con: {maxWidth:“660px”,margin:“0 auto”,padding:“0 20px 80px”},
+card: {background:“white”,borderRadius:“12px”,padding:“16px 18px”,boxShadow:“0 2px 10px rgba(0,0,0,.06)”,marginBottom:“10px”,cursor:“pointer”,transition:“all .25s”},
+inp: {width:“100%”,padding:“12px 14px”,border:“1px solid #e0d6c8”,borderRadius:“9px”,fontFamily:“inherit”,fontSize:“14px”,background:”#faf8f5”,color:”#2c2416”,marginBottom:“10px”,display:“block”},
+btn: {width:“100%”,padding:“14px”,borderRadius:“10px”,border:“none”,fontFamily:“inherit”,fontSize:“14px”,fontWeight:600,cursor:“pointer”,transition:“all .25s”},
+};
+
+const sendEmail = async () => {
+if (!form.name.trim() || !form.email.trim()) return;
+setSending(true);
+try {
+await fetch(“https://api.emailjs.com/api/v1.0/email/send”, {
+method:“POST”, headers:{“Content-Type”:“application/json”},
+body: JSON.stringify({
+service_id: EMAILJS_SERVICE_ID, template_id: EMAILJS_TEMPLATE_ID, user_id: EMAILJS_PUBLIC_KEY,
+template_params: { from_name: form.name, from_email: form.email, to_email: “byungkuen@naver.com”,
+message: `헤드헌터 관심 알림\n이름: ${form.name}\n이메일: ${form.email}\n시각: ${new Date().toLocaleString("ko-KR")}` }
+}),
+});
+} catch(e) {}
+setSent(true);
+setTimeout(() => setPhase(“detail”), 1500);
+setSending(false);
+};
+
+if (phase === “detail”) return (
+<div style={S.wrap}>
+<nav style={S.nav}>
+<button onClick={() => setPhase(“landing”)} style={{background:“none”,border:“none”,cursor:“pointer”,color:”#8b7355”,fontFamily:“inherit”,fontSize:“13px”}}>← {ko?“요약으로 돌아가기”:“Back to summary”}</button>
+<button onClick={() => setLang(ko?“en”:“ko”)} style={{background:“rgba(255,255,255,.8)”,border:“1px solid #d4c9b8”,borderRadius:“18px”,padding:“6px 14px”,cursor:“pointer”,fontFamily:“inherit”,fontSize:“12px”,color:”#6b5d4f”}}>{ko?“English”:“한국어”}</button>
+</nav>
+<div style={S.con}>
+<div style={{paddingTop:“40px”,textAlign:“center”,marginBottom:“40px”}}>
+<h1 style={{fontFamily:”‘Playfair Display’,serif”,fontSize:“clamp(28px,7vw,40px)”,fontWeight:700,color:”#2c2416”,marginBottom:“8px”}}>{ko?“조병근”:“Cho ByungKuen”}</h1>
+<p style={{color:”#c4a882”,letterSpacing:“6px”,marginBottom:“12px”}}>— ✦ —</p>
+<p style={{fontSize:“14px”,color:”#8b7355”}}>{ko?“상세 경력 및 프로젝트”:“Detailed Career & Projects”}</p>
+</div>
+{list.map((c,i) => (
+<div key={i} style={{marginBottom:“20px”}}>
+<div style={{…S.card,borderLeft:`3px solid ${c.color}`}} onClick={() => setOpenDetail(openDetail===i?null:i)}>
+<div style={{display:“flex”,justifyContent:“space-between”,alignItems:“flex-start”}}>
+<div>
+<p style={{fontSize:“10px”,color:”#8b7355”,marginBottom:“2px”}}>{c.period}</p>
+<p style={{fontSize:“16px”,fontWeight:700,color:”#2c2416”,fontFamily:”‘Playfair Display’,serif”,marginBottom:“1px”}}>{c.company}</p>
+<p style={{fontSize:“12px”,color:”#6b5d4f”,marginBottom:“4px”}}>{c.role}</p>
+<p style={{fontSize:“11px”,color:”#b0a090”,fontStyle:“italic”}}>{c.summary}</p>
+</div>
+<span style={{color:”#c4a882”,fontSize:“18px”,marginLeft:“8px”}}>{openDetail===i?“−”:”+”}</span>
+</div>
+{openDetail===i && <div style={{marginTop:“16px”}}>
+{c.details.map((d,j) => (
+<div key={j} style={{marginBottom:“14px”}}>
+<p style={{fontSize:“13px”,fontWeight:700,color:c.color,marginBottom:“6px”}}>▸ {d.title}</p>
+<ul style={{paddingLeft:0,listStyle:“none”}}>
+{d.points.map((p,k) => <li key={k} style={{fontSize:“12px”,color:”#4a3f32”,lineHeight:1.8,paddingLeft:“14px”,position:“relative”}}><span style={{position:“absolute”,left:0,color:”#c4a882”}}>·</span>{p}</li>)}
+</ul>
+</div>
+))}
+</div>}
+</div>
+</div>
+))}
+<div style={{textAlign:“center”,marginTop:“40px”,padding:“24px”,background:“rgba(196,168,130,.1)”,borderRadius:“14px”,border:“1px solid rgba(196,168,130,.3)”}}>
+<p style={{fontSize:“13px”,color:”#6b5d4f”,marginBottom:“8px”}}>📩 {ko?“직접 연락하기”:“Get in touch”}</p>
+<a href=“mailto:byungkuen@naver.com” style={{fontSize:“15px”,color:”#2c2416”,fontWeight:700,textDecoration:“none”}}>byungkuen@naver.com</a>
+</div>
+<div style={{textAlign:“center”,marginTop:“60px”,color:”#b0a090”,fontSize:“11px”}}>
+<p style={{color:”#c4a882”,letterSpacing:“5px”,marginBottom:“8px”}}>— ✦ —</p>조병근 · Cho ByungKuen
+</div>
+</div>
+</div>
+);
+
+if (phase === “pass”) return (
+<div style={{…S.wrap,display:“flex”,alignItems:“center”,justifyContent:“center”}}>
+<div style={{textAlign:“center”,padding:“40px 24px”,maxWidth:“400px”}}>
+<div style={{fontSize:“48px”,marginBottom:“16px”}}>🙏</div>
+<h2 style={{fontFamily:”‘Playfair Display’,serif”,fontSize:“22px”,color:”#2c2416”,marginBottom:“12px”}}>{ko?“방문해 주셔서 감사합니다”:“Thank you for visiting”}</h2>
+<p style={{fontSize:“14px”,color:”#6b5d4f”,lineHeight:1.8}}>{ko?“언제든 좋은 포지션 생기면 다시 방문해 주세요 😊”:“Feel free to come back anytime a great position comes up 😊”}</p>
+</div>
+</div>
+);
+
+return (
+<div style={S.wrap}>
+{phase===“popup” && (
+<div className=“overlay” onClick={e => { if(e.target===e.currentTarget) setPhase(“landing”); }}>
+<div style={{background:“white”,borderRadius:“20px”,padding:“32px 28px”,maxWidth:“420px”,width:“100%”,boxShadow:“0 20px 60px rgba(0,0,0,.2)”,animation:“fadeUp .3s ease”}}>
+<div style={{textAlign:“center”,marginBottom:“24px”}}>
+<div style={{fontSize:“36px”,marginBottom:“10px”}}>🤝</div>
+<h3 style={{fontFamily:”‘Playfair Display’,serif”,fontSize:“20px”,fontWeight:700,color:”#2c2416”,marginBottom:“8px”}}>{ko?“알림 수신에 동의하시나요?”:“Consent to receive updates?”}</h3>
+<p style={{fontSize:“13px”,color:”#6b5d4f”,lineHeight:1.7}}>{ko?“정보를 남겨주시면, 이력서(경력 상세) 보내드리겠습니다.\n향후 좋은 인연을 이어나가면 좋겠습니다!”:“Leave your info and I’ll send you my full resume.\nHoping we can build a great connection going forward!”}</p>
+</div>
+{sent ? (
+<div style={{textAlign:“center”,padding:“16px”}}>
+<div style={{fontSize:“36px”,marginBottom:“8px”}}>✅</div>
+<p style={{fontSize:“14px”,color:”#2c2416”}}>{ko?“전송 완료! 상세 경력으로 이동합니다…”:“Sent! Redirecting to full career…”}</p>
+</div>
+) : (
+<div>
+<label style={{fontSize:“12px”,color:”#6b5d4f”,display:“block”,marginBottom:“5px”}}>{ko?“성함 *”:“Name *”}</label>
+<input style={S.inp} placeholder={ko?“홍길동”:“Your name”} value={form.name} onChange={e => setForm({…form,name:e.target.value})} />
+<label style={{fontSize:“12px”,color:”#6b5d4f”,display:“block”,marginBottom:“5px”}}>{ko?“이메일 *”:“Email *”}</label>
+<input style={S.inp} placeholder=“example@company.com” value={form.email} onChange={e => setForm({…form,email:e.target.value})} type=“email” />
+<div style={{display:“flex”,gap:“10px”,marginTop:“4px”}}>
+<button style={{…S.btn,background:”#f0ebe3”,color:”#6b5d4f”,flex:1}} onClick={() => setPhase(“landing”)}>{ko?“취소”:“Cancel”}</button>
+<button style={{…S.btn,background:form.name&&form.email?”#2c2416”:”#ccc”,color:“white”,flex:2,opacity:sending?.7:1}} onClick={sendEmail} disabled={!form.name||!form.email||sending}>
+{sending?(ko?“전송 중…”:“Sending…”):(ko?“동의하고 전송”:“Agree & Submit”)}
+</button>
+</div>
+<p style={{fontSize:“10px”,color:”#b0a090”,textAlign:“center”,marginTop:“12px”}}>{ko?”* 입력 정보는 취업 관련 연락 목적으로만 사용됩니다”:”* Your info will only be used for job-related communication”}</p>
+</div>
+)}
+</div>
+</div>
+)}
+
+```
+  <nav style={S.nav}>
+    <span style={{fontSize:"11px",color:"#8b7355",letterSpacing:"2px",textTransform:"uppercase",fontFamily:"'Playfair Display',serif"}}>Portfolio</span>
+    <button onClick={() => setLang(ko?"en":"ko")} style={{background:"rgba(255,255,255,.8)",border:"1px solid #d4c9b8",borderRadius:"18px",padding:"6px 14px",cursor:"pointer",fontFamily:"inherit",fontSize:"12px",color:"#6b5d4f"}}>{ko?"English":"한국어"}</button>
+  </nav>
+
+  <div style={S.con}>
+    <div style={{paddingTop:"52px",textAlign:"center",opacity:visible?1:0,transform:visible?"none":"translateY(18px)",transition:"all .7s"}}>
+      <div style={{display:"inline-flex",alignItems:"center",gap:"7px",background:"rgba(196,168,130,.2)",border:"1px solid rgba(196,168,130,.4)",borderRadius:"20px",padding:"7px 18px",marginBottom:"24px",fontSize:"11px",color:"#8b7355",letterSpacing:"1px"}}>
+        <span style={{width:"7px",height:"7px",borderRadius:"50%",background:"#6aaa64",display:"inline-block",animation:"pulse 2s infinite"}} />
+        {ko?"현재 이직 검토 중":"Open to opportunities"}
+      </div>
+      <p style={{fontSize:"15px",color:"#8b7355",marginBottom:"4px",letterSpacing:"2px",fontFamily:"'Playfair Display',serif"}}>{ko?"안녕하세요,":"Hello, I'm"}</p>
+      <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(32px,8vw,48px)",fontWeight:700,color:"#2c2416",marginBottom:"18px",lineHeight:1.2}}>{ko?"조병근입니다":"Cho ByungKuen"}</h1>
+      <p style={{color:"#c4a882",fontSize:"16px",letterSpacing:"6px",marginBottom:"18px"}}>— ✦ —</p>
+      <p style={{fontSize:"clamp(16px,4vw,20px)",lineHeight:1.8,color:"#4a3f32",whiteSpace:"pre-line",marginBottom:"24px",fontWeight:300}}>{ko?"컨설팅과 실무를 모두 경험한\n전략 실행 전문가":"Strategy Consultant with\nHands-on Execution Experience"}</p>
+      <p style={{fontSize:"13px",lineHeight:1.9,color:"#6b5d4f",background:"white",borderRadius:"12px",padding:"18px 20px",boxShadow:"0 2px 12px rgba(0,0,0,.06)",textAlign:"left"}}>
+        {ko?"13년간 유통·이커머스·컨설팅을 넘나들며 데이터 기반 전략을 설계하고 직접 실행해왔습니다. 에스코어(삼성전자), PwC, CJ ENM에서 쌓은 경험으로 복잡한 문제를 단순하게 풀어냅니다.":"13+ years across retail, e-commerce, and consulting. I design data-driven strategies and execute them directly. Experience at S.Core (Samsung Electronics), PwC, and CJ ENM."}
+      </p>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"10px",marginTop:"18px"}}>
+        {[{v:ko?"13년+":"13yrs+",l:ko?"총 경력":"Experience"},{v:ko?"10억+":"10B+ KRW",l:ko?"매출 기여":"Revenue Impact"},{v:"95%↓",l:ko?"AI 공수 절감":"AI Efficiency"}].map((s,i) => (
+          <div key={i} style={{background:"white",borderRadius:"11px",padding:"14px 8px",boxShadow:"0 2px 10px rgba(0,0,0,.05)",textAlign:"center"}}>
+            <div style={{fontSize:"clamp(17px,4vw,22px)",fontWeight:700,color:"#2c2416",fontFamily:"'Playfair Display',serif"}}>{s.v}</div>
+            <div style={{fontSize:"10px",color:"#8b7355",marginTop:"3px"}}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div style={{marginTop:"52px",opacity:visible?1:0,transition:"all .7s .12s",transform:visible?"none":"translateY(18px)"}}>
+      <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",fontWeight:700,color:"#2c2416",marginBottom:"4px"}}>{ko?"경력 요약":"Career Summary"}</h2>
+      <p style={{color:"#c4a882",fontSize:"14px",letterSpacing:"4px",marginBottom:"18px"}}>────</p>
+      {list.map((c,i) => (
+        <div key={i} className="cc" style={{...S.card,borderLeft:`3px solid ${c.color}`}} onClick={() => setOpenCareer(openCareer===i?null:i)}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+            <div>
+              <p style={{fontSize:"10px",color:"#8b7355",marginBottom:"2px"}}>{c.period}</p>
+              <p style={{fontSize:"15px",fontWeight:700,color:"#2c2416",fontFamily:"'Playfair Display',serif",marginBottom:"1px"}}>{c.company}</p>
+              <p style={{fontSize:"12px",color:"#6b5d4f"}}>{c.role}</p>
+            </div>
+            <span style={{color:"#c4a882",fontSize:"16px",marginLeft:"8px"}}>{openCareer===i?"−":"+"}</span>
+          </div>
+          {openCareer===i && <ul style={{marginTop:"12px",listStyle:"none",paddingLeft:0}}>
+            {c.details[0]?.points.map((p,j) => <li key={j} style={{fontSize:"12px",color:"#4a3f32",lineHeight:1.75,paddingLeft:"12px",position:"relative"}}><span style={{position:"absolute",left:0,color:c.color}}>▸</span>{p}</li>)}
+          </ul>}
+        </div>
+      ))}
+    </div>
+
+    <div style={{marginTop:"52px",opacity:visible?1:0,transition:"all .7s .22s",transform:visible?"none":"translateY(18px)"}}>
+      <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",fontWeight:700,color:"#2c2416",marginBottom:"4px"}}>{ko?"핵심 강점":"Core Strengths"}</h2>
+      <p style={{color:"#c4a882",fontSize:"14px",letterSpacing:"4px",marginBottom:"18px"}}>────</p>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"12px"}}>
+        {[{icon:"📊",t:ko?"데이터 기반 실행":"Data-Driven Execution",d:ko?"KPI 설계~실행~분석 직접 수행":"KPI design to analysis, end-to-end"},{icon:"🤝",t:ko?"B2B 제휴·파트너십":"B2B Partnerships",d:ko?"대형 브랜드 협업 모델 설계":"Large brand collaboration model"},{icon:"🏗️",t:ko?"대형 프로젝트 PM":"Large-scale PM",d:ko?"전사 시스템 표준화 총괄":"Enterprise system standardization"},{icon:"🔄",t:ko?"컨설팅+실무 겸비":"Consulting + Ops",d:ko?"전략 수립과 현장 실행 모두":"Strategy AND hands-on execution"}].map((s,i) => (
+          <div key={i} className="sc" style={{background:"white",borderRadius:"13px",padding:"18px",boxShadow:"0 2px 10px rgba(0,0,0,.06)",transition:"all .25s"}}>
+            <div style={{fontSize:"24px",marginBottom:"9px"}}>{s.icon}</div>
+            <div style={{fontSize:"13px",fontWeight:700,color:"#2c2416",marginBottom:"4px"}}>{s.t}</div>
+            <div style={{fontSize:"11px",color:"#6b5d4f",lineHeight:1.6}}>{s.d}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div style={{marginTop:"28px",background:"rgba(196,168,130,.12)",border:"1px solid rgba(196,168,130,.3)",borderRadius:"9px",padding:"12px 16px",fontSize:"11px",color:"#6b5d4f"}}>
+      💼 {ko?"기본급 1억 200만원 | 성과급 10% 내외 | 면접 후 협의":"Base 102M KRW | Bonus ~10% | Negotiable after interview"}
+    </div>
+
+    <div style={{marginTop:"52px",opacity:visible?1:0,transition:"all .7s .3s",transform:visible?"none":"translateY(18px)"}}>
+      <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"20px",fontWeight:700,color:"#2c2416",marginBottom:"4px",textAlign:"center"}}>{ko?"혹시 관심이 있으신가요?":"Are you interested?"}</h2>
+      <p style={{color:"#c4a882",fontSize:"14px",letterSpacing:"4px",marginBottom:"24px",textAlign:"center"}}>────</p>
+      <button onClick={() => setPhase("popup")} style={{...S.btn,background:"#2c2416",color:"#faf8f5",display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px",padding:"18px 20px"}}>
+        <span style={{fontSize:"22px"}}>✋</span>
+        <div style={{textAlign:"left"}}>
+          <div style={{fontSize:"15px"}}>{ko?"관심 있어요":"I'm interested"}</div>
+          <div style={{fontSize:"11px",opacity:0.65,marginTop:"2px"}}>{ko?"적합한 포지션이 있다면 연락 주세요":"Contact me if you have a suitable position"}</div>
+        </div>
+      </button>
+      <button onClick={() => setPhase("pass")} style={{...S.btn,background:"transparent",color:"#8b7355",border:"1px solid #d4c9b8",display:"flex",alignItems:"center",gap:"12px",padding:"16px 20px"}}>
+        <span style={{fontSize:"22px"}}>🙏</span>
+        <div style={{textAlign:"left"}}>
+          <div style={{fontSize:"15px"}}>{ko?"관심 없어요":"Not interested"}</div>
+          <div style={{fontSize:"11px",opacity:0.65,marginTop:"2px"}}>{ko?"괜찮아요, 방문해주셔서 감사합니다":"That's okay, thank you for visiting"}</div>
+        </div>
+      </button>
+    </div>
+
+    <div style={{marginTop:"64px",textAlign:"center",color:"#b0a090",fontSize:"10px"}}>
+      <p style={{color:"#c4a882",fontSize:"13px",letterSpacing:"5px",marginBottom:"8px"}}>— ✦ —</p>
+      조병근 · Cho ByungKuen
+    </div>
+  </div>
+</div>
+```
+
+);
+}
+
+ReactDOM.createRoot(document.getElementById(‘root’)).render(<App />);
+</script>
+
+</body>
+</html>
