@@ -20,10 +20,6 @@
 const e = React.createElement;
 const { useState, useEffect } = React;
 
-const EMAILJS_SERVICE_ID = "service_ojhx83d";
-const EMAILJS_TEMPLATE_ID = "template_3u267tt";
-const EMAILJS_PUBLIC_KEY = "Prrf0TlrAcHYzZwDOcN48";
-
 const careers = {
   ko: [
     { period:"2023.09 ~ 현재", company:"에스코어(삼성전자)", role:"마케팅전략1팀 부장 / 컨설턴트", color:"#1428A0", summary:"삼성 인하우스 IT 컨설팅 | 매출 약 995억 | 415명", details:[{title:"삼성전자 전사 통합 표준화 시스템 구축",points:["신규 론칭 시스템 데이터 표준화 및 프로세스 개선 (AI 도입)","기존 시스템 데이터 표준화 고도화"]},{title:"갤럭시 시리즈 글로벌 마케팅 성과 측정",points:["Galaxy S24/폴드5/플립5 언팩 전후 글로벌 지부별 성과 측정","Best Practice 사례집 발간 및 SNS 반응 분석"]},{title:"삼성닷컴 전환율 개선",points:["유럽 지부 결제 프로세스 개선 → 전환율 약 0.2%↑","유입경로별 구매 전환율 상관관계 분석"]},{title:"디지털 마케팅 채널 최적화",points:["2024년 D2C 강화 전략 수립","AI 활용 SNS 데이터 분석으로 공수 약 95%↓ 절감"]}]},
@@ -41,12 +37,13 @@ const careers = {
   ],
 };
 
+const LINKEDIN_URL = "https://www.linkedin.com/in/byungkuen-cho?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app";
+
 const S = {
   wrap:{fontFamily:"Georgia,serif",background:"linear-gradient(135deg,#faf8f5,#f0ebe3,#faf8f5)",minHeight:"100vh",color:"#2c2416",overflowX:"hidden"},
   nav:{position:"sticky",top:0,zIndex:100,padding:"13px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(250,248,245,.9)",backdropFilter:"blur(12px)",borderBottom:"1px solid rgba(212,201,184,.3)"},
   con:{maxWidth:"660px",margin:"0 auto",padding:"0 20px 80px"},
   card:{background:"white",borderRadius:"12px",padding:"16px 18px",boxShadow:"0 2px 10px rgba(0,0,0,.06)",marginBottom:"10px",cursor:"pointer",transition:"all .25s"},
-  inp:{width:"100%",padding:"12px 14px",border:"1px solid #e0d6c8",borderRadius:"9px",fontFamily:"Georgia,serif",fontSize:"14px",background:"#faf8f5",color:"#2c2416",marginBottom:"10px",display:"block",boxSizing:"border-box"},
   btn:{width:"100%",padding:"14px",borderRadius:"10px",border:"none",fontFamily:"Georgia,serif",fontSize:"14px",fontWeight:600,cursor:"pointer",transition:"all .25s"},
 };
 
@@ -113,52 +110,6 @@ function PassPage({ko}){
   );
 }
 
-function Popup({ko,setPhase}){
-  const [form,setForm]=useState({name:"",email:""});
-  const [sending,setSending]=useState(false);
-  const [sent,setSent]=useState(false);
-  const sendEmail=async()=>{
-    if(!form.name.trim()||!form.email.trim())return;
-    setSending(true);
-    try{
-      await fetch("https://api.emailjs.com/api/v1.0/email/send",{
-        method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({service_id:EMAILJS_SERVICE_ID,template_id:EMAILJS_TEMPLATE_ID,user_id:EMAILJS_PUBLIC_KEY,
-          template_params:{from_name:form.name,from_email:form.email,to_email:"byungkuen@naver.com",
-            message:"헤드헌터 관심 알림\n이름: "+form.name+"\n이메일: "+form.email+"\n시각: "+new Date().toLocaleString("ko-KR")}})
-      });
-    }catch(err){}
-    setSent(true);
-    setTimeout(()=>setPhase("detail"),1500);
-    setSending(false);
-  };
-  return e('div',{style:{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"},
-    onClick:ev=>{if(ev.target===ev.currentTarget)setPhase("landing")}},
-    e('div',{style:{background:"white",borderRadius:"20px",padding:"32px 28px",maxWidth:"420px",width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,.2)"}},
-      e('div',{style:{textAlign:"center",marginBottom:"24px"}},
-        e('div',{style:{fontSize:"36px",marginBottom:"10px"}},"🤝"),
-        e('h3',{style:{fontFamily:"'Playfair Display',serif",fontSize:"20px",fontWeight:700,color:"#2c2416",marginBottom:"8px"}},ko?"알림 수신에 동의하시나요?":"Consent to receive updates?"),
-        e('p',{style:{fontSize:"13px",color:"#6b5d4f",lineHeight:1.7}},ko?"정보를 남겨주시면, 이력서(경력 상세) 보내드리겠습니다. 향후 좋은 인연을 이어나가면 좋겠습니다!":"Leave your info and I'll send you my full resume. Hoping we can build a great connection!")
-      ),
-      sent?e('div',{style:{textAlign:"center",padding:"16px"}},
-        e('div',{style:{fontSize:"36px",marginBottom:"8px"}},"✅"),
-        e('p',{style:{fontSize:"14px",color:"#2c2416"}},ko?"전송 완료! 상세 경력으로 이동합니다...":"Sent! Redirecting to full career...")
-      ):e('div',null,
-        e('label',{style:{fontSize:"12px",color:"#6b5d4f",display:"block",marginBottom:"5px"}},ko?"성함 *":"Name *"),
-        e('input',{style:S.inp,placeholder:ko?"홍길동":"Your name",value:form.name,onChange:ev=>setForm({...form,name:ev.target.value})}),
-        e('label',{style:{fontSize:"12px",color:"#6b5d4f",display:"block",marginBottom:"5px"}},ko?"이메일 *":"Email *"),
-        e('input',{style:S.inp,placeholder:"example@company.com",value:form.email,type:"email",onChange:ev=>setForm({...form,email:ev.target.value})}),
-        e('div',{style:{display:"flex",gap:"10px",marginTop:"4px"}},
-          e('button',{style:{...S.btn,background:"#f0ebe3",color:"#6b5d4f",flex:1},onClick:()=>setPhase("landing")},ko?"취소":"Cancel"),
-          e('button',{style:{...S.btn,background:form.name&&form.email?"#2c2416":"#ccc",color:"white",flex:2,opacity:sending?0.7:1},onClick:sendEmail,disabled:!form.name||!form.email||sending},
-            sending?(ko?"전송 중...":"Sending..."):(ko?"동의하고 전송":"Agree & Submit"))
-        ),
-        e('p',{style:{fontSize:"10px",color:"#b0a090",textAlign:"center",marginTop:"12px"}},ko?"* 입력 정보는 취업 관련 연락 목적으로만 사용됩니다":"* Your info will only be used for job-related communication")
-      )
-    )
-  );
-}
-
 function App(){
   const [lang,setLang]=useState("ko");
   const [phase,setPhase]=useState("landing");
@@ -170,7 +121,6 @@ function App(){
   if(phase==="detail")return e(DetailPage,{ko,setLang,setPhase});
   if(phase==="pass")return e(PassPage,{ko});
   return e('div',{style:S.wrap},
-    phase==="popup"&&e(Popup,{ko,setPhase}),
     e(NavBar,{ko,setLang,onBack:null}),
     e('div',{style:S.con},
       e('div',{style:{paddingTop:"52px",textAlign:"center",opacity:visible?1:0,transform:visible?"none":"translateY(18px)",transition:"all .7s"}},
@@ -183,12 +133,12 @@ function App(){
         e('p',{style:{color:"#c4a882",fontSize:"16px",letterSpacing:"6px",marginBottom:"18px"}},"— ✦ —"),
         e('p',{style:{fontSize:"clamp(16px,4vw,20px)",lineHeight:1.8,color:"#4a3f32",marginBottom:"24px",fontWeight:300}},ko?"컨설팅과 실무를 모두 경험한 전략 실행 전문가":"Strategy Consultant with Hands-on Execution Experience"),
         e('p',{style:{fontSize:"13px",lineHeight:1.9,color:"#6b5d4f",background:"white",borderRadius:"12px",padding:"18px 20px",boxShadow:"0 2px 12px rgba(0,0,0,.06)",textAlign:"left"}},
-          ko?"13년간 유통·이커머스·컨설팅을 넘나들며 데이터 기반 전략을 설계하고 직접 실행해왔습니다. 에스코어(삼성전자), PwC, CJ ENM에서 쌓은 경험으로 복잡한 문제를 단순하게 풀어냅니다.":"13+ years across retail, e-commerce, and consulting. I design data-driven strategies and execute them directly."
+          ko?"13년간 유통·이커머스·컨설팅을 넘나들며 데이터 기반 전략을 설계하고 직접 실행해왔습니다. 에스코어(삼성전자), PwC, CJ ENM에서 쌓은 경험으로 복잡한 문제를 단순하게 풀어냅니다.":"13+ years across retail, e-commerce, and consulting. I design data-driven strategies and execute them directly. Experience at S.Core (Samsung Electronics), PwC, and CJ ENM."
         ),
         e('div',{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"10px",marginTop:"18px"}},
-          ...[{v:ko?"13년+":"13yrs+",l:ko?"총 경력":"Experience"},{v:ko?"10억+":"10B+ KRW",l:ko?"매출 기여":"Revenue Impact"},{v:"95%↓",l:ko?"AI 공수 절감":"AI Efficiency"}].map((s,i)=>
+          ...[{v:ko?"13년+":"13yrs+",l:ko?"총 경력":"Experience"},{v:ko?"CJ ENM, 이마트":"CJ ENM, Emart",l:ko?"대기업 실무":"Corporate"},{v:ko?"PwC, 에스코어":"PwC, S.Core",l:ko?"컨설팅 경험":"Consulting"}].map((s,i)=>
             e('div',{key:i,style:{background:"white",borderRadius:"11px",padding:"14px 8px",boxShadow:"0 2px 10px rgba(0,0,0,.05)",textAlign:"center"}},
-              e('div',{style:{fontSize:"clamp(17px,4vw,22px)",fontWeight:700,color:"#2c2416",fontFamily:"'Playfair Display',serif"}},s.v),
+              e('div',{style:{fontSize:"clamp(13px,3vw,16px)",fontWeight:700,color:"#2c2416",fontFamily:"'Playfair Display',serif"}},s.v),
               e('div',{style:{fontSize:"10px",color:"#8b7355",marginTop:"3px"}},s.l)
             )
           )
@@ -231,11 +181,11 @@ function App(){
       e('div',{style:{marginTop:"52px",opacity:visible?1:0,transition:"all .7s .3s",transform:visible?"none":"translateY(18px)"}},
         e('h2',{style:{fontFamily:"'Playfair Display',serif",fontSize:"20px",fontWeight:700,color:"#2c2416",marginBottom:"4px",textAlign:"center"}},ko?"혹시 관심이 있으신가요?":"Are you interested?"),
         e('p',{style:{color:"#c4a882",fontSize:"14px",letterSpacing:"4px",marginBottom:"24px",textAlign:"center"}},"────"),
-        e('button',{onClick:()=>setPhase("popup"),style:{...S.btn,background:"#2c2416",color:"#faf8f5",display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px",padding:"18px 20px"}},
+        e('a',{href:LINKEDIN_URL,target:"_blank",style:{...S.btn,background:"#2c2416",color:"#faf8f5",display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px",padding:"18px 20px",textDecoration:"none",borderRadius:"10px",boxSizing:"border-box"}},
           e('span',{style:{fontSize:"22px"}},"✋"),
           e('div',{style:{textAlign:"left"}},
             e('div',{style:{fontSize:"15px"}},ko?"관심 있어요":"I'm interested"),
-            e('div',{style:{fontSize:"11px",opacity:0.65,marginTop:"2px"}},ko?"적합한 포지션이 있다면 연락 주세요":"Contact me if you have a suitable position")
+            e('div',{style:{fontSize:"11px",opacity:0.65,marginTop:"2px"}},ko?"링크드인으로 연락 주세요":"Connect with me on LinkedIn")
           )
         ),
         e('button',{onClick:()=>setPhase("pass"),style:{...S.btn,background:"transparent",color:"#8b7355",border:"1px solid #d4c9b8",display:"flex",alignItems:"center",gap:"12px",padding:"16px 20px"}},
